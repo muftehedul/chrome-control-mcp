@@ -1,0 +1,28 @@
+{
+  "name": "chrome-control-mcp",
+  "version": "0.1.0",
+  "description": "Antigravity-style browser control MCP server using Playwright",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "chrome-control-mcp": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js",
+    "test:capabilities": "node test-capabilities.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "0.6.0",
+    "playwright": "^1.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  }
+}
