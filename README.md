@@ -30,7 +30,13 @@ Run the MCP server:
 ./run-mcp.sh
 ```
 
-`run-mcp.sh` forces visible mode (`PLAYWRIGHT_HEADLESS=false`) and auto-attaches to Chrome CDP on `http://127.0.0.1:9222` if available.
+`run-mcp.sh` forces visible mode (`PLAYWRIGHT_HEADLESS=false`), prefers Google Chrome (`/usr/bin/google-chrome`) by default, and auto-attaches to Chrome CDP on `http://127.0.0.1:9222` if available.
+
+If Chrome is installed in a custom location, set:
+
+```bash
+PLAYWRIGHT_EXECUTABLE_PATH="/absolute/path/to/chrome" ./run-mcp.sh
+```
 
 ## Recommended Desktop Setup
 
@@ -69,6 +75,12 @@ Run deterministic capability tests:
 
 ```bash
 npm run test:capabilities
+```
+
+Quick network navigation smoke test:
+
+```bash
+node -e "const { chromium } = require('playwright'); (async()=>{const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH || '/usr/bin/google-chrome',headless:true,args:['--no-sandbox']}); const page=await browser.newPage(); await page.goto('https://example.com',{waitUntil:'domcontentloaded'}); console.log(page.url()); await browser.close();})();"
 ```
 
 Run tests in visible mode:

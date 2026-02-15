@@ -11,8 +11,9 @@ Use this when you want OpenCode's `playwright` MCP server to control a visible d
 - `PLAYWRIGHT_HEADLESS`
   - `run-mcp.sh` forces this to `false` so OpenCode always uses visible browser windows
   - for automated testing, call `build/index.js` directly with `PLAYWRIGHT_HEADLESS=true`
-- `PLAYWRIGHT_EXECUTABLE_PATH` (default: `/usr/bin/chromium-browser`)
-  - Set a custom Chrome/Chromium binary path
+- `PLAYWRIGHT_EXECUTABLE_PATH` (optional)
+  - If unset, launcher prefers `/usr/bin/google-chrome`, then `/usr/bin/google-chrome-stable`, then Chromium fallbacks
+  - Set this explicitly to force a custom Chrome/Chromium binary path
 - `PLAYWRIGHT_CDP_URL` (optional)
   - Example: `http://127.0.0.1:9222`
   - If set, the MCP server attaches to an existing Chrome started with remote debugging
@@ -59,13 +60,13 @@ Expected:
 Run this test suite to verify the expanded browser controls:
 
 ```bash
-cd /srv/mcp-proxy/playwright-mcp/playwright
+cd /tmp/chrome-control-mcp
 npm run test:capabilities
 ```
 
 Default test mode is headless. To watch the browser physically:
 
 ```bash
-cd /srv/mcp-proxy/playwright-mcp/playwright
+cd /tmp/chrome-control-mcp
 PLAYWRIGHT_HEADLESS=false npm run test:capabilities
 ```

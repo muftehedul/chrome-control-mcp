@@ -17,6 +17,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import playwright from "playwright";
+import { existsSync } from "node:fs";
 
 let browser: playwright.Browser | null = null;
 let context: playwright.BrowserContext | null = null;
@@ -106,6 +107,28 @@ function envBool(name: string, defaultValue: boolean): boolean {
 function toNumber(value: unknown, fallback: number): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function resolveExecutablePath(): string {
+  const configuredPath = process.env.PLAYWRIGHT_EXECUTABLE_PATH?.trim();
+  if (configuredPath) {
+    return configuredPath;
+  }
+
+  const candidates = [
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error("No Chrome/Chromium executable found. Set PLAYWRIGHT_EXECUTABLE_PATH to a valid browser binary.");
 }
 
 async function getTabsSnapshot(ctx: playwright.BrowserContext): Promise<Array<{ index: number; url: string; title: string }>> {
@@ -211,7 +234,7 @@ async function launchBrowser() {
     await page.bringToFront();
     console.error(`Connected to existing browser via CDP: ${cdpUrl}`);
   } else {
-    const executablePath = process.env.PLAYWRIGHT_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
+    const executablePath = resolveExecutablePath();
 
     // Launch with args to prevent crashes and connection issues.
     browser = await playwright.chromium.launch({
@@ -236,7 +259,7 @@ async function launchBrowser() {
     registerContext(context);
 
     page = await context.newPage();
-    console.error(`Browser launched successfully (headless=${requestedHeadless})`);
+    console.error(`Browser launched successfully (headless=${requestedHeadless}, executable=${executablePath})`);
   }
 
   // Set default timeouts
